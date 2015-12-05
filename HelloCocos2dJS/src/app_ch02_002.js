@@ -131,27 +131,3 @@ var PlayerSprite = cc.Sprite.extend({
 		this.y = groundY;
 	}
 });
-
-// 障害物クラス
-var SpikeSprite = cc.Sprite.extend({
-
-	jumpingFlg:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		jumpingFlg = false;
-	},
-	jump:function(){
-		if(jumpingFlg == true) return;
-		jumpingFlg = true;
-		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 60, 1);
-		var cFunc = cc.callFunc(this.jumpDone, this);
-		this.stopAllActions();
-		this.runAction(cc.sequence([jBy, cFunc]));
-	},
-	jumpDone:function(){
-		cc.log("jumpDone");
-		jumpingFlg = false;
-	}
-});

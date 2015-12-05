@@ -1,6 +1,6 @@
 /*==========
- Ch02-002:
- プレイヤークラス(Update)
+ Ch02-001:
+ プレイヤークラス(JumpBy)
  ==========*/
 
 // シーン
@@ -43,12 +43,8 @@ var HelloWorldLayer = cc.Layer.extend({
 			event:cc.EventListener.TOUCH_ONE_BY_ONE,
 			onTouchBegan:function(touch, event){
 				//cc.log("onTouchBegan");
-				var touchX = touch.getLocationX();
-				if(touchX < dispSize.width / 2){
-					playerSprite.jumpLeft();
-				}else{
-					playerSprite.jumpRight();
-				}
+				playerSprite.jump();
+				self.gameOver();
 				return true;
 			},
 			onTouchMoved:function(touch, event){
@@ -64,17 +60,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		return true;
 	},
 	update:function(dt){
-
-		// プレイヤーUpdate
-		playerSprite.update(dt);
-
-		// プレイヤー落下判定
-		if(playerSprite.y < 0.0){
-			playerSprite.land(0.0);
-		}
-
-		// ゲームオーバー判定
-		//self.gameOver();
+		cc.log("update" + dt);
 	},
 	gameOver:function(){
 		cc.log("gameOver");
@@ -83,57 +69,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	}
 });
 
-// プレイヤークラス
+// プレイヤークラス(1段ジャンプ)
 var PlayerSprite = cc.Sprite.extend({
-
-	jumpFlg:null,
-	vX:null,
-	vY:null,
-	jumpX:null,
-	jumpY:null,
-	gravityY:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		jumpFlg = false;
-		vX = 0.0;
-		vY = 0.0;
-		jumpX = 120.0;
-		jumpY = 240.0;
-		gravityY = -9.8;
-	},
-	update:function(dt){
-
-		this.x += vX * dt;
-		this.y += vY * dt;
-		if(jumpFlg == true){
-			vY += gravityY;
-		}
-	},
-	jumpLeft:function(){
-
-		jumpFlg = true;
-		vX = -jumpX;
-		vY = +jumpY;
-	},
-	jumpRight:function(){
-
-		jumpFlg = true;
-		vX = +jumpX;
-		vY = +jumpY;
-	},
-	land:function(groundY){
-
-		jumpFlg = false;
-		vX = 0.0;
-		vY = 0.0;
-		this.y = groundY;
-	}
-});
-
-// 障害物クラス
-var SpikeSprite = cc.Sprite.extend({
 
 	jumpingFlg:null,
 
