@@ -3,34 +3,40 @@
  Spriteを表示する
  ==========*/
 
+// シーン
+var HelloWorldScene = cc.Scene.extend({
+
+	onEnter:function(){
+		this._super();
+		var layer = new HelloWorldLayer();
+		this.addChild(layer);
+	}
+});
+
 // レイヤー
 var HelloWorldLayer = cc.Layer.extend({
 	
+	self:null,
+	dispSize:null,
 	playerSprite:null,
 
 	ctor:function(){
 		this._super();
+
+		// Self
+		self = this;
 		
 		// ディスプレイサイズ
-		var size = cc.Director.getInstance().getWinSize();
+		dispSize = cc.Director.getInstance().getWinSize();
 		
 		// プレイヤー
 		playerSprite = new PlayerSprite("res/oyadius.png");
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
-			size.width / 2,
-			size.height / 2
+			dispSize.width / 2,
+			dispSize.height / 2
 		));
 		this.addChild(playerSprite);
-
-		// コイン
-		coinSprite = new CoinSprite("res/oyadius.png");
-		coinSprite.setAnchorPoint(cc.p(0.5, 0.5));
-		coinSprite.setPosition(cc.p(
-			size.width / 4,
-			size.height / 2
-		));
-		this.addChild(coinSprite);
 
 		// タッチイベント
 		cc.eventManager.addListener({
@@ -38,7 +44,6 @@ var HelloWorldLayer = cc.Layer.extend({
 			onTouchBegan:function(touch, event){
 				//cc.log("onTouchBegan");
 				playerSprite.jump();
-				coinSprite.jump();
 				return true;
 			},
 			onTouchMoved:function(touch, event){
@@ -48,55 +53,40 @@ var HelloWorldLayer = cc.Layer.extend({
 				//cc.log("onTouchEnded");
 			}}, this);
 
+		// スケジュール
+		this.scheduleUpdate();
+
 		return true;
+	},
+	update:function(dt){
+		cc.log("update" + dt);
+		this.gameOver();
+	},
+	gameOver:function(){
+		cc.log("gameOver");
+		cc.eventManager.removeListener(this);
+		this.unscheduleUpdate();
 	}
 });
 
 // プレイヤークラス
 var PlayerSprite = cc.Sprite.extend({
 
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-	},
-	jump:function(){
-		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 30, 1);
-		this.stopAllActions();
-		this.runAction(cc.sequence(jBy));
-	}
-});
-
-// コインクラス
-var CoinSprite = cc.Sprite.extend({
-
-	_counter:10,
-	_COUNT_MIN:0,
-	_COUNT_MAX:10,
+	jumpingFlg:false,
 
 	ctor:function(fileName, rect, rotated){
 		this._super(fileName, rect, rotated);
 	},
 	jump:function(){
-		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 30, 1);
-		var cFunc = cc.callFunc(this.countDown, this);
+		if(this.jumpingFlg == true) return;
+		this.jumpingFlg = true;
+		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 60, 1);
+		var cFunc = cc.callFunc(this.jumpDone, this);
 		this.stopAllActions();
 		this.runAction(cc.sequence([jBy, cFunc]));
 	},
-	countDown:function(){
-		if(this._COUNT_MIN < this._counter){
-			this._counter--;
-		}else{
-			this._counter = this._COUNT_MAX;
-		}
-		cc.log("counter:" + this._counter);
-	}
-});
-
-// シーン
-var HelloWorldScene = cc.Scene.extend({
-
-	onEnter:function () {
-		this._super();
-		var layer = new HelloWorldLayer();
-		this.addChild(layer);
+	jumpDone:function(){
+		cc.log("jumpDone");
+		this.jumpingFlg = false;
 	}
 });
