@@ -1,6 +1,6 @@
 /*==========
- Ch02-005:
- 障害物クラス
+ Ch02-004:
+ 背景クラス(LoopするNode)
  ==========*/
 
 // シーン
@@ -144,26 +144,6 @@ var BackgroundNode = cc.Node.extend({
 	}
 });
 
-// 背景クラス
-var BackgroundSprite = cc.Sprite.extend({
-
-	borderY:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		borderY = this.getBoundingBox().height * 0.8;
-	},
-	update:function(playerSprite){
-
-		if(borderY < playerSprite.y){
-			var disY = playerSprite.y - borderY;
-			this.y -= disY; // ボジションを移動
-			borderY += disY;// ボーダー基準を更新
-		}
-	}
-});
-
 // プレイヤークラス
 var PlayerSprite = cc.Sprite.extend({
 
@@ -210,29 +190,5 @@ var PlayerSprite = cc.Sprite.extend({
 		vX = 0.0;
 		vY = 0.0;
 		this.y = groundY;
-	}
-});
-
-// 障害物クラス
-var SpikeSprite = cc.Sprite.extend({
-
-	jumpingFlg:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		jumpingFlg = false;
-	},
-	jump:function(){
-		if(jumpingFlg == true) return;
-		jumpingFlg = true;
-		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 60, 1);
-		var cFunc = cc.callFunc(this.jumpDone, this);
-		this.stopAllActions();
-		this.runAction(cc.sequence([jBy, cFunc]));
-	},
-	jumpDone:function(){
-		cc.log("jumpDone");
-		jumpingFlg = false;
 	}
 });

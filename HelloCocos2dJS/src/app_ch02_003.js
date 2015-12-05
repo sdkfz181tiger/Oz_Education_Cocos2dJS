@@ -1,6 +1,6 @@
 /*==========
  Ch02-003:
- 背景クラス(Scroll)
+ 背景クラス(ScrollするSprite)
  ==========*/
 
 // シーン
@@ -31,7 +31,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		dispSize = cc.Director.getInstance().getWinSize();
 
 		// 背景
-		backSprite = new BackgroundNode("res/background_640x960.png");
+		backSprite = new BackgroundSprite("res/background_640x960.png");
 		backSprite.setAnchorPoint(cc.p(0.5, 0.0));
 		backSprite.setPosition(cc.p(0.0, 0.0));
 		this.addChild(backSprite);
@@ -86,61 +86,6 @@ var HelloWorldLayer = cc.Layer.extend({
 		cc.log("gameOver");
 		cc.eventManager.removeListener(this);
 		this.unscheduleUpdate();
-	}
-});
-
-// 背景クラス
-var BackgroundNode = cc.Node.extend({
-
-	backSprite0:null,
-	backSprite1:null,
-	backSprite2:null,
-	borderY:null,
-
-	ctor:function(fileName){
-		var self = this;
-		cc.Node.prototype.ctor.call(self);
-
-		backSprite0 = new cc.Sprite(fileName);
-		backSprite0.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite0.setPosition(cc.p(0.0, 0.0));
-		this.addChild(backSprite0);
-
-		backSprite1 = new cc.Sprite(fileName);
-		backSprite1.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite1.setPosition(cc.p(0.0, 
-			backSprite0.y + backSprite0.getBoundingBox().height));
-		this.addChild(backSprite1);
-
-		backSprite2 = new cc.Sprite(fileName);
-		backSprite2.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite2.setPosition(cc.p(0.0,
-			backSprite1.y + backSprite1.getBoundingBox().height));
-		this.addChild(backSprite2);
-
-		borderY = backSprite0.getBoundingBox().height * 0.8;
-	},
-	update:function(playerSprite){
-
-		if(borderY < playerSprite.y){
-			var disY = playerSprite.y - borderY;
-			this.y -= disY; // ボジションを移動
-
-			if(this.y + backSprite0.y + backSprite0.getBoundingBox().height < 0){
-				backSprite0.setPosition(cc.p(0.0,
-					backSprite2.y + backSprite2.getBoundingBox().height));
-			}
-			if(this.y + backSprite1.y + backSprite1.getBoundingBox().height < 0){
-				backSprite1.setPosition(cc.p(0.0,
-					backSprite0.y + backSprite0.getBoundingBox().height));
-			}
-			if(this.y + backSprite2.y + backSprite2.getBoundingBox().height < 0){
-				backSprite2.setPosition(cc.p(0.0,
-					backSprite1.y + backSprite1.getBoundingBox().height));
-			}
-
-			borderY += disY;// ボーダー基準を更新
-		}
 	}
 });
 
@@ -210,29 +155,5 @@ var PlayerSprite = cc.Sprite.extend({
 		vX = 0.0;
 		vY = 0.0;
 		this.y = groundY;
-	}
-});
-
-// 障害物クラス
-var SpikeSprite = cc.Sprite.extend({
-
-	jumpingFlg:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		jumpingFlg = false;
-	},
-	jump:function(){
-		if(jumpingFlg == true) return;
-		jumpingFlg = true;
-		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 60, 1);
-		var cFunc = cc.callFunc(this.jumpDone, this);
-		this.stopAllActions();
-		this.runAction(cc.sequence([jBy, cFunc]));
-	},
-	jumpDone:function(){
-		cc.log("jumpDone");
-		jumpingFlg = false;
 	}
 });
