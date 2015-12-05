@@ -18,6 +18,7 @@ var HelloWorldLayer = cc.Layer.extend({
 	
 	self:null,
 	dispSize:null,
+	backSprite:null,
 	playerSprite:null,
 
 	ctor:function(){
@@ -28,15 +29,24 @@ var HelloWorldLayer = cc.Layer.extend({
 		
 		// ディスプレイサイズ
 		dispSize = cc.Director.getInstance().getWinSize();
+
+		// 背景
+		backSprite = new BackgroundSprite("res/background_640x960.png");
+		backSprite.setAnchorPoint(cc.p(0.5, 0.0));
+		backSprite.setPosition(cc.p(
+			dispSize.width * 0.5,
+			dispSize.height * 0.0
+		));
+		this.addChild(backSprite);
 		
 		// プレイヤー
 		playerSprite = new PlayerSprite("res/oyadius.png");
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
-			dispSize.width / 2,
-			dispSize.height / 2
+			backSprite.getBoundingBox().width * 0.5,
+			backSprite.getBoundingBox().height * 0.2
 		));
-		this.addChild(playerSprite);
+		backSprite.addChild(playerSprite);
 
 		// タッチイベント
 		cc.eventManager.addListener({
@@ -65,6 +75,9 @@ var HelloWorldLayer = cc.Layer.extend({
 	},
 	update:function(dt){
 
+		// 背景
+		backSprite.update(playerSprite);
+
 		// プレイヤーUpdate
 		playerSprite.update(dt);
 
@@ -80,6 +93,26 @@ var HelloWorldLayer = cc.Layer.extend({
 		cc.log("gameOver");
 		cc.eventManager.removeListener(this);
 		this.unscheduleUpdate();
+	}
+});
+
+// 背景クラス
+var BackgroundSprite = cc.Sprite.extend({
+
+	borderY:null,
+
+	ctor:function(fileName, rect, rotated){
+		this._super(fileName, rect, rotated);
+
+		borderY = this.getBoundingBox().height * 0.8;
+	},
+	update:function(playerSprite){
+
+		if(borderY < playerSprite.y){
+			var disY = playerSprite.y - borderY;
+			this.y -= disY; // ボジションを移動
+			borderY += disY;// ボーダー基準を更新
+		}
 	}
 });
 
