@@ -30,7 +30,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		dispSize = cc.Director.getInstance().getWinSize();
 		
 		// プレイヤー
-		playerSprite = new PlayerSprite("res/oyadius.png");
+		playerSprite = new PlayerSprite("res/player.png");
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
 			dispSize.width * 0.5,

@@ -37,7 +37,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		this.addChild(backSprite);
 		
 		// プレイヤー
-		playerSprite = new PlayerSprite("res/oyadius.png");
+		playerSprite = new PlayerSprite("res/player.png");
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
 			dispSize.width * 0.5, dispSize.height * 0.2));
