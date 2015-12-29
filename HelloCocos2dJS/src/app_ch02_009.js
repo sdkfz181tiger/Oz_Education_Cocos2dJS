@@ -1,7 +1,15 @@
 /*==========
- Ch02-005:
- 障害物クラス(配列で管理)
+ Ch02-009:
+ 障害物クラス(衝突判定)
  ==========*/
+
+var levelIndex = 0;
+var levelArray = [
+	[2.0,  30],[2.0,  60],[2.0,  90],[2.0, 120],[2.0, 150],
+	[2.0, 180],[2.0, 210],[2.0, 240],[2.0, 270],[2.0, 300],
+	[1.0,  30],[1.0,  60],[1.0,  90],[1.0, 120],[1.0, 150],
+	[1.0, 180],[1.0, 210],[1.0, 240],[1.0, 270],[1.0, 300]
+]; 
 
 // シーン
 var HelloWorldScene = cc.Scene.extend({
@@ -21,6 +29,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	backSprite:null,
 	playerSprite:null,
 	spikeArray:null,
+	spikePaddingY:null,
+	spikePosY:null,
 
 	ctor:function(){
 		this._super();
@@ -46,13 +56,23 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 障害物
 		spikeArray = new Array();
-		var paddingY = 100;
-		for(var i=0; i<10; i++){
+		spikePaddingY = 100;
+		spikePosY = 0;
+		for(var i=0; i<15; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
-			spikeSprite.setPosition(cc.p(
-				dispSize.width * 0.5, paddingY * i));
-			spikeSprite.slide(2.0, 100);
+			var x = dispSize.width * Math.random();
+			var y = spikePaddingY * i;
+			if(spikePosY < y) spikePosY = y;
+			spikeSprite.setPosition(cc.p(x, y));
+			spikeSprite.slide(
+				levelArray[levelIndex][0],
+				levelArray[levelIndex][1]);
+			if(levelIndex < levelArray.length-1){
+				levelIndex++;
+			}else{
+				levelIndex = 0;
+			}
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
 		}
@@ -89,6 +109,37 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// プレイヤーUpdate
 		playerSprite.update(dt);
+
+		// 障害物
+		for(var i=0; i<spikeArray.length; i++){
+			var spikeSprite = spikeArray[i];
+
+			// 画面外判定
+			if(spikeSprite.y < -backSprite.y){
+				// 再配置
+				var spikeSprite = spikeArray[i];
+				var x = dispSize.width * Math.random();
+				var y = spikePosY + spikePaddingY;
+				spikePosY = y;
+				spikeSprite.x = x;
+				spikeSprite.y = y;
+				spikeSprite.stop();
+				spikeSprite.slide(
+					levelArray[levelIndex][0],
+					levelArray[levelIndex][1]);
+				if(levelIndex < levelArray.length-1){
+					levelIndex++;
+				}else{
+					levelIndex = 0;
+				}
+			}else{
+				// 衝突判定
+				if(playerSprite.collision(spikeSprite)){
+					// ゲームオーバー
+					self.gameOver();
+				}
+			}
+		}
 
 		// ゲームオーバー判定
 		if(playerSprite.y < -backSprite.y){
@@ -204,6 +255,12 @@ var PlayerSprite = cc.Sprite.extend({
 		vX = 0.0;
 		vY = 0.0;
 		this.y = groundY;
+	},
+	collision:function(spike){
+		if(cc.rectIntersectsRect(this, spike.getBoundingBox())){
+			return true;
+		}
+		return false;
 	}
 });
 
@@ -220,6 +277,8 @@ var SpikeSprite = cc.Sprite.extend({
 	slide:function(time, width){
 		if(slideFlg == true) return;
 		slideFlg = true;
+		var random = Math.random();
+		if(random < 0.5) width *= -1.0;
 		var mBy0 = cc.moveBy(time, cc.p(+width, 0.0));
 		var mBy1 = cc.moveBy(time, cc.p(-width, 0.0));
 		var mBy2 = cc.moveBy(time, cc.p(-width, 0.0));
@@ -227,5 +286,9 @@ var SpikeSprite = cc.Sprite.extend({
 		var seq = cc.sequence([mBy0, mBy1, mBy2, mBy3]);
 		this.stopAllActions();
 		this.runAction(cc.repeatForever(seq));
+	},
+	stop:function(){
+		slideFlg = false;
+		this.stopAllActions();
 	}
 });

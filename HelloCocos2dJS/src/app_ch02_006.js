@@ -1,6 +1,6 @@
 /*==========
- Ch02-005:
- 障害物クラス(配列で管理)
+ Ch02-006:
+ 障害物クラス(乱数を使った表現)
  ==========*/
 
 // シーン
@@ -50,8 +50,9 @@ var HelloWorldLayer = cc.Layer.extend({
 		for(var i=0; i<10; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
-			spikeSprite.setPosition(cc.p(
-				dispSize.width * 0.5, paddingY * i));
+			var x = dispSize.width * Math.random();
+			var y = paddingY * i;
+			spikeSprite.setPosition(cc.p(x, y));
 			spikeSprite.slide(2.0, 100);
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
@@ -214,12 +215,14 @@ var SpikeSprite = cc.Sprite.extend({
 
 	ctor:function(fileName, rect, rotated){
 		this._super(fileName, rect, rotated);
-
+		
 		slideFlg = false;
 	},
 	slide:function(time, width){
 		if(slideFlg == true) return;
 		slideFlg = true;
+		var random = Math.random();
+		if(random < 0.5) width *= -1.0;
 		var mBy0 = cc.moveBy(time, cc.p(+width, 0.0));
 		var mBy1 = cc.moveBy(time, cc.p(-width, 0.0));
 		var mBy2 = cc.moveBy(time, cc.p(-width, 0.0));

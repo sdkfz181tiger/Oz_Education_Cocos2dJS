@@ -1,6 +1,6 @@
 /*==========
- Ch02-005:
- 障害物クラス(配列で管理)
+ Ch02-007:
+ 障害物クラス(Updateを使った再配置)
  ==========*/
 
 // シーン
@@ -21,6 +21,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	backSprite:null,
 	playerSprite:null,
 	spikeArray:null,
+	spikePaddingY:null,
+	spikePosY:null,
 
 	ctor:function(){
 		this._super();
@@ -46,12 +48,15 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 障害物
 		spikeArray = new Array();
-		var paddingY = 100;
-		for(var i=0; i<10; i++){
+		spikePaddingY = 100;
+		spikePosY = 0;
+		for(var i=0; i<15; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
-			spikeSprite.setPosition(cc.p(
-				dispSize.width * 0.5, paddingY * i));
+			var x = dispSize.width * Math.random();
+			var y = spikePaddingY * i;
+			if(spikePosY < y) spikePosY = y;
+			spikeSprite.setPosition(cc.p(x, y));
 			spikeSprite.slide(2.0, 100);
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
@@ -89,6 +94,20 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// プレイヤーUpdate
 		playerSprite.update(dt);
+
+		// 障害物
+		for(var i=0; i<spikeArray.length; i++){
+			// 画面外判定
+			if(spikeArray[i].y < -backSprite.y){
+				// 再配置
+				var spikeSprite = spikeArray[i];
+				var x = dispSize.width * Math.random();
+				var y = spikePosY + spikePaddingY;
+				spikePosY = y;
+				spikeSprite.x = x;
+				spikeSprite.y = y;
+			}
+		}
 
 		// ゲームオーバー判定
 		if(playerSprite.y < -backSprite.y){
@@ -220,6 +239,8 @@ var SpikeSprite = cc.Sprite.extend({
 	slide:function(time, width){
 		if(slideFlg == true) return;
 		slideFlg = true;
+		var random = Math.random();
+		if(random < 0.5) width *= -1.0;
 		var mBy0 = cc.moveBy(time, cc.p(+width, 0.0));
 		var mBy1 = cc.moveBy(time, cc.p(-width, 0.0));
 		var mBy2 = cc.moveBy(time, cc.p(-width, 0.0));
