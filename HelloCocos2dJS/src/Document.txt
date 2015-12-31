@@ -92,3 +92,11 @@
 	40min
 	5min x 8section
 
+/*==========
+ Ch02-012:
+ 当たり判定の再調整(RectとPoint)
+ ==========*/
+
+	40min
+	5min x 8section
+
