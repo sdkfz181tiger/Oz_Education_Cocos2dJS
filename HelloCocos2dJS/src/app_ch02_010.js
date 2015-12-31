@@ -1,6 +1,6 @@
 /*==========
- Ch02-011:
- スコアリング(スコア表示),障害物の発生箇所の調整
+ Ch02-010:
+ 障害物クラス(ゲームオーバーアニメーション)
  ==========*/
 
 var levelIndex = 0;
@@ -29,10 +29,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	backSprite:null,
 	playerSprite:null,
 	spikeArray:null,
-	spikeOffsetY:null,
 	spikePaddingY:null,
 	spikePosY:null,
-	scoreSprite:null,
 
 	ctor:function(){
 		this._super();
@@ -58,14 +56,13 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 障害物
 		spikeArray = new Array();
-		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		spikePaddingY = 100;
-		spikePosY = 0.0;
+		spikePosY = 0;
 		for(var i=0; i<15; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
 			var x = dispSize.width * Math.random();
-			var y = spikeOffsetY + spikePaddingY * i;
+			var y = spikePaddingY * i;
 			if(spikePosY < y) spikePosY = y;
 			spikeSprite.setPosition(cc.p(x, y));
 			spikeSprite.slide(
@@ -79,15 +76,6 @@ var HelloWorldLayer = cc.Layer.extend({
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
 		}
-
-		// スコア
-		scoreSprite = new ScoreSprite("res/background_score.png");
-		scoreSprite.setAnchorPoint(cc.p(1.0, 1.0));
-		scoreSprite.setPosition(cc.p(
-			dispSize.width-5.0, dispSize.height-5.0));
-		scoreSprite.initScore(playerSprite.y);
-		scoreSprite.setScore(playerSprite.y);
-		this.addChild(scoreSprite);
 
 		// タッチイベント
 		cc.eventManager.addListener({
@@ -158,9 +146,6 @@ var HelloWorldLayer = cc.Layer.extend({
 			playerSprite.land(-backSprite.y);
 			self.gameOver();
 		}
-
-		// スコアを更新
-		scoreSprite.setScore(playerSprite.y);
 	},
 	gameOver:function(){
 		cc.log("gameOver");
@@ -337,39 +322,5 @@ var GameOverSprite = cc.Sprite.extend({
 	stop:function(){
 		showFlg = false;
 		this.stopAllActions();
-	}
-});
-
-// スコアクラス
-var ScoreSprite = cc.Sprite.extend({
-
-	score:null,
-	offset:null,
-	unit:null,
-	label:null,
-
-	ctor:function(fileName, rect, rotated){
-		this._super(fileName, rect, rotated);
-
-		score  = 0;
-		offset = 0;
-		unit   = "m";
-		label  = cc.LabelTTF.create(score + unit, "Arial", 40);
-		label.setAnchorPoint(cc.p(1.0, 0.5));
-		label.setPosition(cc.p(
-			this.getBoundingBox().width - 5.0,
-			this.getBoundingBox().height*0.5));
-		this.addChild(label);
-	},
-	initScore:function(num){
-		offset = num;
-	},
-	setScore:function(num){
-		if(num < score) return;
-		score = Math.floor(num);
-		label.setString(score + unit);
-	},
-	getScore:function(){
-		return score;
 	}
 });
