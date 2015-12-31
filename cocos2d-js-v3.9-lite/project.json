@@ -5,6 +5,7 @@
     "renderMode"    : 1,
     "jsList" : [
         "src/resource.js",
+        "src/ozateck.gameManager.js",
         "src/app.js"
     ]
 }
