@@ -1,6 +1,6 @@
 /*==========
  Ch02-011:
- スコアリング(スコア表示),障害物の発生箇所の調整
+ スコアリング(スコア表示)
  ==========*/
 
 var levelIndex = 0;
@@ -29,8 +29,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	backSprite:null,
 	playerSprite:null,
 	spikeArray:null,
-	spikeOffsetY:null,
 	spikePaddingY:null,
+	spikeOffsetY:null,
 	spikePosY:null,
 	scoreSprite:null,
 
@@ -58,8 +58,8 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 障害物
 		spikeArray = new Array();
-		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		spikePaddingY = 100;
+		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		spikePosY = 0.0;
 		for(var i=0; i<15; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
@@ -365,8 +365,8 @@ var ScoreSprite = cc.Sprite.extend({
 		offset = num;
 	},
 	setScore:function(num){
-		if(num < score) return;
-		score = Math.floor(num);
+		if(num - offset < score) return;
+		score = Math.floor(num) - offset;
 		label.setString(score + unit);
 	},
 	getScore:function(){

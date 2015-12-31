@@ -21,6 +21,8 @@ var HelloWorldLayer = cc.Layer.extend({
 	backSprite:null,
 	playerSprite:null,
 	spikeArray:null,
+	spikePaddingY:null,
+	spikeOffsetY:null,
 
 	ctor:function(){
 		this._super();
@@ -46,12 +48,14 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 障害物
 		spikeArray = new Array();
+		spikePaddingY = 100;
+		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		var paddingY = 100;
 		for(var i=0; i<10; i++){
 			var spikeSprite = new SpikeSprite("res/spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
 			spikeSprite.setPosition(cc.p(
-				dispSize.width * 0.5, paddingY * i));
+				dispSize.width * 0.5, spikeOffsetY + spikePaddingY * i));
 			spikeSprite.slide(2.0, 100);
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);

@@ -33,7 +33,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		// 背景
 		backSprite = new BackgroundSprite("res/background_640x960.png");
 		backSprite.setAnchorPoint(cc.p(0.5, 0.0));
-		backSprite.setPosition(cc.p(0.0, 0.0));
+		backSprite.setPosition(cc.p(dispSize.width*0.5, 0.0));
 		this.addChild(backSprite);
 		
 		// プレイヤー
