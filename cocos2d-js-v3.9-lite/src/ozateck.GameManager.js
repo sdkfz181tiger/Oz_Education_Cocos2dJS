@@ -266,18 +266,22 @@ var GameOverSprite = cc.Sprite.extend({
 		this._super(fileName, rect, rotated);
 
 		showFlg = false;
+		this.setVisible(showFlg);
 	},
-	start:function(time, distance){
+	show:function(time, distance){
 		if(showFlg == true) return;
 		showFlg = true;
+		this.setVisible(showFlg);
+		
 		var jBy = cc.jumpBy(time, cc.p(0, 0), distance, 1);
-		var dTime = cc.DelayTime(1.0);
-		var cFunc = cc.callFunc(this.stop, this);
+		var dTime = cc.delayTime(1.0);
+		var cFunc = cc.callFunc(this.hide, this);
 		this.stopAllActions();
 		this.runAction(cc.sequence(jBy, dTime, cFunc));
 	},
-	stop:function(){
+	hide:function(){
 		showFlg = false;
+		this.setVisible(showFlg);
 		this.stopAllActions();
 	}
 });

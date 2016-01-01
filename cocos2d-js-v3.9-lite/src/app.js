@@ -32,6 +32,7 @@ var HelloWorldLayer = cc.Layer.extend({
 	spikePaddingY:null,
 	spikeOffsetY:null,
 	spikePosY:null,
+	gameoverSprite:null,
 	scoreSprite:null,
 
 	ctor:function(){
@@ -45,7 +46,7 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// 背景
 		backSprite = new BackgroundNode("res/background_640x960.png");
-		backSprite.setAnchorPoint(cc.p(0.5, 0.0));
+		backSprite.setAnchorPoint(cc.p(0.0, 0.0));
 		backSprite.setPosition(cc.p(0.0, 0.0));
 		this.addChild(backSprite);
 		
@@ -79,6 +80,12 @@ var HelloWorldLayer = cc.Layer.extend({
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
 		}
+
+		// ゲームオーバーアニメーション
+		gameoverSprite = new GameOverSprite("res/title_gameover.png");
+		gameoverSprite.setAnchorPoint(cc.p(0.5, 0.5));
+		gameoverSprite.setPosition(cc.p(dispSize.width*0.5, dispSize.height*0.5));
+		this.addChild(gameoverSprite);
 
 		// スコア
 		scoreSprite = new ScoreSprite("res/background_score.png");
@@ -168,10 +175,6 @@ var HelloWorldLayer = cc.Layer.extend({
 		this.unscheduleUpdate();
 
 		// ゲームオーバーアニメーション
-		var titleGameover = new GameOverSprite("res/title_gameover.png");
-		titleGameover.setAnchorPoint(cc.p(0.5, 0.5));
-		titleGameover.setPosition(cc.p(dispSize.width*0.5, dispSize.height*0.5));
-		titleGameover.start(1.0, 50.0);
-		this.addChild(titleGameover);
+		gameoverSprite.show(1.0, 50.0);
 	}
 });
