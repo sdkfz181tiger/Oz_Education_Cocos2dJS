@@ -83,6 +83,53 @@ ozateck.GameManager = function(){
 	}
 
 	//==========
+	// クラス関連(キャラクター)
+	//==========
+
+	this.createBackgroundNode = function(fileName, ax, ay, posX, posY){
+		var backSprite = new BackgroundNode(fileName);
+		backSprite.setAnchorPoint(cc.p(ax, ay));
+		backSprite.setPosition(cc.p(posX, posY));
+		return backSprite;
+	}
+
+	this.createPlayerSprite = function(fileName, ax, ay, posX, posY){
+		var playerSprite = new PlayerSprite(fileName);
+		playerSprite.setAnchorPoint(cc.p(ax, ay));
+		playerSprite.setPosition(cc.p(posX, posY));
+		return playerSprite;
+	}
+
+	this.createSpikeSprite = function(fileName, ax, ay, posX, posY){
+		var spikeSprite = new SpikeSprite(fileName);
+		spikeSprite.setAnchorPoint(cc.p(ax, ay));
+		spikeSprite.setPosition(cc.p(posX, posY));
+		return spikeSprite;
+	}
+
+	this.createGameoverSprite = function(fileName, ax, ay, posX, posY){
+		var gameoverSprite = new GameOverSprite(fileName);
+		gameoverSprite.setAnchorPoint(cc.p(ax, ay));
+		gameoverSprite.setPosition(cc.p(posX, posY));
+		return gameoverSprite;
+	}
+
+	//==========
+	// アニメーションを作成する
+	//==========
+
+	this.createAnimation = function(fileName, begin, end){
+		var animFrames = new Array();
+		for(var i=begin; i<=end; i++){
+			var str = fileName + i + ".png";
+			var frame = cc.spriteFrameCache.getSpriteFrame(str);
+			animFrames.push(frame);
+		}
+		var animation = cc.Animation.create(animFrames, 0.1);
+		return animation;
+	}
+
+	//==========
 	// 角度を計算する
 	var PI       = 3.141592653;
 	var RadToDeg = 57.29577951;
@@ -198,17 +245,21 @@ var PlayerSprite = cc.Sprite.extend({
 			vY += gravityY;
 		}
 	},
-	jumpLeft:function(){
+	jumpLeft:function(animation){
 
 		jumpFlg = true;
 		vX = -jumpX;
 		vY = +jumpY;
+		this.setFlippedX(false);
+		this.runAction(cc.Animate.create(animation));
 	},
-	jumpRight:function(){
+	jumpRight:function(animation){
 
 		jumpFlg = true;
 		vX = +jumpX;
 		vY = +jumpY;
+		this.setFlippedX(true);
+		this.runAction(cc.Animate.create(animation));
 	},
 	land:function(groundY){
 

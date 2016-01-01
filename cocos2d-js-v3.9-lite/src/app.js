@@ -16,8 +16,17 @@ var HelloWorldScene = cc.Scene.extend({
 
 	onEnter:function(){
 		this._super();
+
+		// SpriteSheet(Load)
+		cc.spriteFrameCache.addSpriteFrames("res/tx_game_education_01.plist");
+
+		// Layer
 		var layer = new HelloWorldLayer();
 		this.addChild(layer);
+	},
+	onExit:function(){
+		// SpriteSheet(Unload)
+		cc.spriteFrameCache.removeSpriteFramesFromFile("res/tx_game_education_01.plist");
 	}
 });
 
@@ -25,9 +34,11 @@ var HelloWorldScene = cc.Scene.extend({
 var HelloWorldLayer = cc.Layer.extend({
 	
 	self:null,
+	gameManager:null,
 	dispSize:null,
 	backSprite:null,
 	playerSprite:null,
+	playerAnimationJump:null,
 	spikeArray:null,
 	spikePaddingY:null,
 	spikeOffsetY:null,
@@ -40,22 +51,25 @@ var HelloWorldLayer = cc.Layer.extend({
 
 		// Self
 		self = this;
+
+		// GameManager
+		gameManager = new ozateck.GameManager();
 		
 		// ディスプレイサイズ
 		dispSize = cc.director.getWinSize();
 
 		// 背景
-		backSprite = new BackgroundNode("res/background_640x960.png");
-		backSprite.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite.setPosition(cc.p(0.0, 0.0));
+		backSprite = gameManager.createBackgroundNode("res/background_640x960.png",
+			0.0, 0.0, 0.0, 0.0);
 		this.addChild(backSprite);
 		
 		// プレイヤー
-		playerSprite = new PlayerSprite("res/player.png");
-		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
-		playerSprite.setPosition(cc.p(
-			dispSize.width * 0.5, dispSize.height * 0.2));
+		playerSprite = gameManager.createPlayerSprite("res/cat_base_0.png", 
+			0.5, 0.5, dispSize.width * 0.5, dispSize.height * 0.2);
 		backSprite.addChild(playerSprite);
+		
+		// プレイヤーアニメーション
+		playerAnimationJump = gameManager.createAnimation("cat_jump_s_", 0, 7);
 
 		// 障害物
 		spikeArray = new Array();
@@ -63,12 +77,11 @@ var HelloWorldLayer = cc.Layer.extend({
 		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		spikePosY = 0.0;
 		for(var i=0; i<15; i++){
-			var spikeSprite = new SpikeSprite("res/spike.png");
-			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
-			var x = dispSize.width * Math.random();
-			var y = spikeOffsetY + spikePaddingY * i;
-			if(spikePosY < y) spikePosY = y;
-			spikeSprite.setPosition(cc.p(x, y));
+			var posX = dispSize.width * Math.random();
+			var posY = spikeOffsetY + spikePaddingY * i;
+			if(spikePosY < posY) spikePosY = posY;
+			var spikeSprite = gameManager.createSpikeSprite("res/spike.png",
+				0.5, 0.5, posX, posY);
 			spikeSprite.slide(
 				levelArray[levelIndex][0],
 				levelArray[levelIndex][1]);
@@ -82,9 +95,8 @@ var HelloWorldLayer = cc.Layer.extend({
 		}
 
 		// ゲームオーバーアニメーション
-		gameoverSprite = new GameOverSprite("res/title_gameover.png");
-		gameoverSprite.setAnchorPoint(cc.p(0.5, 0.5));
-		gameoverSprite.setPosition(cc.p(dispSize.width*0.5, dispSize.height*0.5));
+		gameoverSprite = gameManager.createGameoverSprite("res/title_gameover.png",
+			0.5, 0.5, dispSize.width*0.5, dispSize.height*0.5);
 		this.addChild(gameoverSprite);
 
 		// スコア
@@ -103,9 +115,9 @@ var HelloWorldLayer = cc.Layer.extend({
 				//cc.log("onTouchBegan");
 				var touchX = touch.getLocationX();
 				if(touchX < dispSize.width / 2){
-					playerSprite.jumpLeft();
+					playerSprite.jumpLeft(playerAnimationJump);
 				}else{
-					playerSprite.jumpRight();
+					playerSprite.jumpRight(playerAnimationJump);
 				}
 				return true;
 			},
@@ -136,12 +148,12 @@ var HelloWorldLayer = cc.Layer.extend({
 			// 画面外判定
 			if(spikeSprite.y < -backSprite.y){
 				// 再配置
+				var posX = dispSize.width * Math.random();
+				var posY = spikePosY + spikePaddingY;
+				spikePosY = posY;
 				var spikeSprite = spikeArray[i];
-				var x = dispSize.width * Math.random();
-				var y = spikePosY + spikePaddingY;
-				spikePosY = y;
-				spikeSprite.x = x;
-				spikeSprite.y = y;
+				spikeSprite.x = posX;
+				spikeSprite.y = posY;
 				spikeSprite.stop();
 				spikeSprite.slide(
 					levelArray[levelIndex][0],
