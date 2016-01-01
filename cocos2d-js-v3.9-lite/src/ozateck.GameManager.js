@@ -114,6 +114,13 @@ ozateck.GameManager = function(){
 		return gameoverSprite;
 	}
 
+	this.createScoreSprite = function(fileName, ax, ay, posX, posY){
+		var scoreSprite = new ScoreSprite(fileName);
+		scoreSprite.setAnchorPoint(cc.p(ax, ay));
+		scoreSprite.setPosition(cc.p(posX, posY));
+		return scoreSprite;
+	}
+
 	//==========
 	// アニメーションを作成する
 	//==========
