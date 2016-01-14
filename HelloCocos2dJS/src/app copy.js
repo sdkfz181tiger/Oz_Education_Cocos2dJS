@@ -11,18 +11,16 @@ var levelArray = [
 	[1.0, 180],[1.0, 210],[1.0, 240],[1.0, 270],[1.0, 300]
 ]; 
 
-//==========
 // シーン
 var HelloWorldScene = cc.Scene.extend({
 
 	onEnter:function(){
 		this._super();
-		var layer = new HelloWorldLayer();// Layer
+		var layer = new HelloWorldLayer();
 		this.addChild(layer);
 	}
 });
 
-//==========
 // レイヤー
 var HelloWorldLayer = cc.Layer.extend({
 	
@@ -34,6 +32,7 @@ var HelloWorldLayer = cc.Layer.extend({
 	spikePaddingY:null,
 	spikeOffsetY:null,
 	spikePosY:null,
+	gameoverSprite:null,
 	scoreSprite:null,
 
 	ctor:function(){
@@ -43,7 +42,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		self = this;
 		
 		// ディスプレイサイズ
-		dispSize = cc.director.getWinSize();
+		dispSize = cc.Director.getInstance().getWinSize();
 
 		// 背景
 		backSprite = new BackgroundNode(["res/background_640x960_0.png",
@@ -59,7 +58,6 @@ var HelloWorldLayer = cc.Layer.extend({
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
 			dispSize.width * 0.5, dispSize.height * 0.2));
-		playerSprite.land(dispSize.height * 0.2);
 		backSprite.addChild(playerSprite);
 
 		// 障害物
@@ -85,6 +83,12 @@ var HelloWorldLayer = cc.Layer.extend({
 			spikeArray.push(spikeSprite);
 			backSprite.addChild(spikeSprite);
 		}
+
+		// ゲームオーバーアニメーション
+		gameoverSprite = new GameOverSprite("res/title_gameover.png");
+		gameoverSprite.setAnchorPoint(cc.p(0.5, 0.5));
+		gameoverSprite.setPosition(cc.p(dispSize.width*0.5, dispSize.height*0.5));
+		this.addChild(gameoverSprite);
 
 		// スコア
 		scoreSprite = new ScoreSprite("res/background_score.png");
@@ -173,12 +177,11 @@ var HelloWorldLayer = cc.Layer.extend({
 		cc.eventManager.removeListener(this);
 		this.unscheduleUpdate();
 
-		// プレイヤー
-		playerSprite.die();
+		// ゲームオーバーアニメーション
+		gameoverSprite.show(1.0, 50.0);
 	}
 });
 
-//==========
 // 背景クラス
 var BackgroundNode = cc.Node.extend({
 
@@ -233,7 +236,6 @@ var BackgroundNode = cc.Node.extend({
 	}
 });
 
-//==========
 // プレイヤークラス
 var PlayerSprite = cc.Sprite.extend({
 
@@ -267,24 +269,12 @@ var PlayerSprite = cc.Sprite.extend({
 		jumpFlg = true;
 		vX = -jumpX;
 		vY = +jumpY;
-		// Animation
-		this.stopAllActions();
-		var animate = cc.Animate.create(createAnimation(
-			"res/main_player_jump.png", 0, 1, 100, 100));
-		this.runAction(cc.repeat(cc.sequence(animate), 1));
-		this.setFlippedX(false);
 	},
 	jumpRight:function(){
 
 		jumpFlg = true;
 		vX = +jumpX;
 		vY = +jumpY;
-		// Animation
-		this.stopAllActions();
-		var animate = cc.Animate.create(createAnimation(
-			"res/main_player_jump.png", 0, 1, 100, 100));
-		this.runAction(cc.repeat(cc.sequence(animate), 1));
-		this.setFlippedX(true);
 	},
 	land:function(groundY){
 
@@ -292,19 +282,6 @@ var PlayerSprite = cc.Sprite.extend({
 		vX = 0.0;
 		vY = 0.0;
 		this.y = groundY;
-		// Animation
-		this.stopAllActions();
-		var animate = cc.Animate.create(createAnimation(
-			"res/main_player_stay.png", 0, 1, 100, 100));
-		this.runAction(cc.repeatForever(cc.sequence(animate)));
-	},
-	die:function(){
-
-		// Animation
-		this.stopAllActions();
-		var animate = cc.Animate.create(createAnimation(
-			"res/main_player_die.png", 0, 1, 100, 100));
-		this.runAction(cc.repeatForever(cc.sequence(animate)));
 	},
 	collision:function(spike){
 		if(cc.rectContainsPoint(
@@ -315,7 +292,6 @@ var PlayerSprite = cc.Sprite.extend({
 	}
 });
 
-//==========
 // 障害物クラス
 var SpikeSprite = cc.Sprite.extend({
 
@@ -346,6 +322,35 @@ var SpikeSprite = cc.Sprite.extend({
 });
 
 //==========
+// GameOverクラス
+var GameOverSprite = cc.Sprite.extend({
+
+	showFlg:null,
+
+	ctor:function(fileName, rect, rotated){
+		this._super(fileName, rect, rotated);
+
+		showFlg = false;
+		this.setVisible(showFlg);
+	},
+	show:function(time, distance){
+		if(showFlg == true) return;
+		showFlg = true;
+		this.setVisible(showFlg);
+		
+		var jBy = cc.jumpBy(time, cc.p(0, 0), distance, 1);
+		var dTime = cc.delayTime(1.0);
+		var cFunc = cc.callFunc(this.hide, this);
+		this.stopAllActions();
+		this.runAction(cc.sequence(jBy, dTime, cFunc));
+	},
+	hide:function(){
+		showFlg = false;
+		this.setVisible(showFlg);
+		this.stopAllActions();
+	}
+});
+
 // スコアクラス
 var ScoreSprite = cc.Sprite.extend({
 
@@ -363,7 +368,7 @@ var ScoreSprite = cc.Sprite.extend({
 		label  = cc.LabelTTF.create(score + unit, "Arial", 40);
 		label.setAnchorPoint(cc.p(1.0, 0.5));
 		label.setPosition(cc.p(
-			this.getBoundingBox().width - 20.0,
+			this.getBoundingBox().width - 5.0,
 			this.getBoundingBox().height*0.5));
 		this.addChild(label);
 	},
@@ -379,16 +384,3 @@ var ScoreSprite = cc.Sprite.extend({
 		return score;
 	}
 });
-
-//==========
-// アニメーション
-function createAnimation(fileName, begin, end, width, height){
-	var animFrames = new Array();
-	for(var i=begin; i<=end; i++){
-		var frame = cc.SpriteFrame.create(fileName,cc.rect(width*i,0,width,height));
-		animFrames.push(frame);
-	}
-	var animation = cc.Animation.create(animFrames, 0.1);
-	return animation;
-}
-
