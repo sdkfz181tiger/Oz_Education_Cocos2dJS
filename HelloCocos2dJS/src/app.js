@@ -45,13 +45,16 @@ var HelloWorldLayer = cc.Layer.extend({
 		dispSize = cc.Director.getInstance().getWinSize();
 
 		// 背景
-		backSprite = new BackgroundNode("res/background_640x960.png");
+		backSprite = new BackgroundNode(["res/background_640x960_0.png",
+										"res/background_640x960_1.png",
+										"res/background_640x960_2.png",
+										"res/background_640x960_3.png"]);
 		backSprite.setAnchorPoint(cc.p(0.5, 0.0));
 		backSprite.setPosition(cc.p(0.0, 0.0));
 		this.addChild(backSprite);
 		
 		// プレイヤー
-		playerSprite = new PlayerSprite("res/player.png");
+		playerSprite = new PlayerSprite("res/main_player.png");
 		playerSprite.setAnchorPoint(cc.p(0.5, 0.5));
 		playerSprite.setPosition(cc.p(
 			dispSize.width * 0.5, dispSize.height * 0.2));
@@ -63,7 +66,7 @@ var HelloWorldLayer = cc.Layer.extend({
 		spikeOffsetY = playerSprite.y + spikePaddingY;// 障害物の発生箇所の調整
 		spikePosY = 0.0;
 		for(var i=0; i<15; i++){
-			var spikeSprite = new SpikeSprite("res/spike.png");
+			var spikeSprite = new SpikeSprite("res/main_spike.png");
 			spikeSprite.setAnchorPoint(cc.p(0.5, 0.5));
 			var x = dispSize.width * Math.random();
 			var y = spikeOffsetY + spikePaddingY * i;
@@ -182,53 +185,52 @@ var HelloWorldLayer = cc.Layer.extend({
 // 背景クラス
 var BackgroundNode = cc.Node.extend({
 
-	backSprite0:null,
-	backSprite1:null,
-	backSprite2:null,
-	borderY:null,
+	fileNames:null,// 背景素材の名前
+	bSprites:null, // 背景素材のスプライト
+	borderY:null,  // 基準線
 
-	ctor:function(fileName){
+	ctor:function(fileNames){
 		var self = this;
 		cc.Node.prototype.ctor.call(self);
-
-		backSprite0 = new cc.Sprite(fileName);
-		backSprite0.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite0.setPosition(cc.p(0.0, 0.0));
-		this.addChild(backSprite0);
-
-		backSprite1 = new cc.Sprite(fileName);
-		backSprite1.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite1.setPosition(cc.p(0.0, 
-			backSprite0.y + backSprite0.getBoundingBox().height));
-		this.addChild(backSprite1);
-
-		backSprite2 = new cc.Sprite(fileName);
-		backSprite2.setAnchorPoint(cc.p(0.0, 0.0));
-		backSprite2.setPosition(cc.p(0.0,
-			backSprite1.y + backSprite1.getBoundingBox().height));
-		this.addChild(backSprite2);
-
-		borderY = backSprite0.getBoundingBox().height * 0.8;
+		
+		this.fileNames = fileNames;
+		bSprites = new Array();
+		var basePosY = 0.0;
+		for(var i=0; i<fileNames.length; i++){
+			var bSprite = new cc.Sprite(fileNames[i]);
+			bSprite.setAnchorPoint(cc.p(0.0, 0.0));
+			bSprite.setPosition(cc.p(0.0, basePosY));
+			basePosY += bSprite.getBoundingBox().height;
+			bSprites.push(bSprite);
+			this.addChild(bSprite);
+		}
+		
+		// 基準線を決める
+		borderY = bSprites[0].getBoundingBox().height * 0.7;
 	},
 	update:function(playerSprite){
-
+	
 		if(borderY < playerSprite.y){
 			var disY = playerSprite.y - borderY;
 			this.y -= disY; // ボジションを移動
-
-			if(this.y + backSprite0.y + backSprite0.getBoundingBox().height < 0){
-				backSprite0.setPosition(cc.p(0.0,
-					backSprite2.y + backSprite2.getBoundingBox().height));
+			
+			var indexFirst = bSprites.length-2;// 最後から2番目のスプライト
+			var indexLast = bSprites.length-1; // 最後のスプライト
+			for(var i=indexFirst; i<=indexLast; i++){
+				
+				if(this.y + bSprites[i].y + bSprites[i].getBoundingBox().height < 0){
+					var indexTarget;
+					if(i == indexFirst){
+						indexTarget = indexLast;
+					}else{
+						indexTarget = i-1;
+					}
+					// ターゲットのスプライトの上へ移動
+					bSprites[i].setPosition(cc.p(0.0,
+						bSprites[indexTarget].y + bSprites[indexTarget].getBoundingBox().height));
+				}
 			}
-			if(this.y + backSprite1.y + backSprite1.getBoundingBox().height < 0){
-				backSprite1.setPosition(cc.p(0.0,
-					backSprite0.y + backSprite0.getBoundingBox().height));
-			}
-			if(this.y + backSprite2.y + backSprite2.getBoundingBox().height < 0){
-				backSprite2.setPosition(cc.p(0.0,
-					backSprite1.y + backSprite1.getBoundingBox().height));
-			}
-
+			
 			borderY += disY;// ボーダー基準を更新
 		}
 	}
