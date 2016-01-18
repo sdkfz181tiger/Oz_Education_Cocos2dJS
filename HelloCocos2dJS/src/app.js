@@ -30,6 +30,7 @@ var HelloWorldLayer = cc.Layer.extend({
 			event:cc.EventListener.TOUCH_ONE_BY_ONE,
 			onTouchBegan:function(touch, event){
 				cc.log("onTouchBegan");
+				playerSprite.jump();
 				return true;
 		}}, this);
 	}
@@ -48,5 +49,10 @@ var PlayerSprite = cc.Sprite.extend({
 
 	ctor:function(fileName, rect, rotated){
 		this._super(fileName, rect, rotated);
+	},
+	jump:function(){
+		cc.log("jump!!");
+		var jBy = cc.jumpBy(0.2, cc.p(0, 0), 60, 1);
+		this.runAction(jBy);
 	}
 });
