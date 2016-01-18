@@ -4,6 +4,7 @@ var HelloWorldLayer = cc.Layer.extend({
 	self:null,
 	dispSize:null,
 	backSprite:null,
+	playerSprite:null,
 	
 	ctor:function () {
 		this._super();
@@ -18,6 +19,11 @@ var HelloWorldLayer = cc.Layer.extend({
 		backSprite = new cc.Sprite(res.Bkg_0_png);
 		backSprite.setPosition(cc.p(dispSize.width / 2, dispSize.height / 2));
 		this.addChild(backSprite, 0);
+		
+		// プレイヤー
+		playerSprite = new PlayerSprite(res.Player_png);
+		playerSprite.setPosition(cc.p(dispSize.width / 2, dispSize.height / 2));
+		this.addChild(playerSprite, 0);
 	}
 });
 
@@ -26,5 +32,13 @@ var HelloWorldScene = cc.Scene.extend({
 		this._super();
 		var layer = new HelloWorldLayer();
 		this.addChild(layer);
+	}
+});
+
+// プレイヤークラス
+var PlayerSprite = cc.Sprite.extend({
+
+	ctor:function(fileName, rect, rotated){
+		this._super(fileName, rect, rotated);
 	}
 });
