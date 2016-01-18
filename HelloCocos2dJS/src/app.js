@@ -24,6 +24,14 @@ var HelloWorldLayer = cc.Layer.extend({
 		playerSprite = new PlayerSprite(res.Player_png);
 		playerSprite.setPosition(cc.p(dispSize.width / 2, dispSize.height / 2));
 		this.addChild(playerSprite, 0);
+		
+		// タッチイベント
+		cc.eventManager.addListener({
+			event:cc.EventListener.TOUCH_ONE_BY_ONE,
+			onTouchBegan:function(touch, event){
+				cc.log("onTouchBegan");
+				return true;
+		}}, this);
 	}
 });
 
