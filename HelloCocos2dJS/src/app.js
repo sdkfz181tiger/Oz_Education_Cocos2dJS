@@ -32,7 +32,14 @@ var HelloWorldLayer = cc.Layer.extend({
 			event:cc.EventListener.TOUCH_ONE_BY_ONE,
 			onTouchBegan:function(touch, event){
 				cc.log("onTouchBegan");
-				playerSprite.jump();
+				
+				// 左右の判定
+				var touchX = touch.getLocationX();
+				if(touchX < dispSize.width * 0.5){
+					playerSprite.jumpLeft();
+				}else{
+					playerSprite.jumpRight();
+				}
 				return true;
 			}
 		}, this);
@@ -50,13 +57,34 @@ var HelloWorldScene = cc.Scene.extend({
 // プレイヤークラス
 var PlayerSprite = cc.Sprite.extend({
 
+	jumpingFlg:null,
+
 	ctor:function(fileName, rect, rotated){
 		this._super(fileName, rect, rotated);
+		
+		jumpingFlg = false;
 	},
-	jump:function(){
-		cc.log("jump!!");
-		var jBy = cc.jumpBy(0.2, cc.p(0.0, 0.0), 60, 1);
-		this.runAction(jBy);
+	jumpLeft:function(){// 左へジャンプ
+		if(jumpingFlg == true) return;// ジャンプ中かどうか
+		jumpingFlg = true;            // ジャンプ中フラグ(true)
+		cc.log("jumpLeft!!");
+		var jBy = cc.jumpBy(0.5, cc.p(-60.0, 0.0), 60, 1);
+		var cFunc = cc.callFunc(this.jumpDone, this);
+		this.stopAllActions();
+		this.runAction(cc.sequence([jBy, cFunc]));
+	},
+	jumpRight:function(){// 右へジャンプ
+		if(jumpingFlg == true) return;// ジャンプ中かどうか
+		jumpingFlg = true;            // ジャンプ中フラグ(true)
+		cc.log("jumpRight!!");
+		var jBy = cc.jumpBy(0.5, cc.p(+60.0, 0.0), 60, 1);
+		var cFunc = cc.callFunc(this.jumpDone, this);
+		this.stopAllActions();
+		this.runAction(cc.sequence([jBy, cFunc]));
+	},
+	jumpDone:function(){
+		cc.log("jumpDone!!");
+		jumpingFlg = false;// ジャンプ中フラグ(false)
 	}
 });
 
